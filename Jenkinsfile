@@ -13,17 +13,11 @@ pipeline {
             }
         }
 
-        stage('Clean Containers') {
-            steps {
-                sh 'docker rm -f devops-todo-app-backend devops-todo-app-frontend || true'
-            }
-        }
-        stage('Clean Containers') {
+        stage('Force Remove Containers') {
             steps {
                 sh 'docker rm -f devops-todo-app-backend devops-todo-app-frontend prometheus grafana || true'
             }
         }
-
 
         stage('Build & Run via Docker Compose') {
             steps {
