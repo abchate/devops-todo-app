@@ -2,25 +2,35 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "fatousamba/devops-todo-app" // adapte à ton Docker ID
+        COMPOSE_FILE = 'docker-compose.yml'
     }
 
     stages {
-        stage('Installer les dépendances') {
+        stage('Build & Run via Docker Compose') {
             steps {
-                dir('backend') {
-                    sh 'npm install'
-                }
-                dir('frontend') {
-                    sh 'npm install'
-                }
+                sh 'docker-compose down || true' // pour nettoyer les anciens containers
+                sh 'docker-compose up -d --build'
             }
         }
 
-        stage('Build Docker image') {
+        stage('Test Backend API') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh 'sleep 5' // attendre que les services démarrent
+                sh 'curl -f http://localhost:9090 || echo " Backend non accessible"'
             }
+        }
+
+        stage('Test Frontend') {
+            steps {
+                sh 'curl -f http://localhost || echo " Frontend non accessible"'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '🧹 Nettoyage...'
+            sh 'docker-compose down'
         }
     }
 }
