@@ -13,10 +13,16 @@ pipeline {
             }
         }
 
+        stage('Clean Containers') {
+            steps {
+                sh 'docker rm -f devops-todo-app-backend devops-todo-app-frontend || true'
+            }
+        }
+
         stage('Build & Run via Docker Compose') {
             steps {
                 sh 'docker compose -f $DOCKER_COMPOSE_FILE down || true'
-                sh 'docker compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans'
+                sh 'docker compose -f $DOCKER_COMPOSE_FILE up -d --build --force-recreate --remove-orphans'
             }
         }
 
