@@ -35,7 +35,8 @@ pipeline {
 
         stage('Test Frontend') {
             steps {
-                sh 'curl -f http://localhost || echo "⚠️ Frontend non accessible"'
+                sh 'curl -f http://localhost:9090/metrics || echo "⚠️ Endpoint /metrics non accessible"'
+
             }
         }
     }
