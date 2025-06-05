@@ -28,23 +28,20 @@ pipeline {
 
         stage('Test Backend API') {
             steps {
-                sh 'sleep 5'
-                sh 'curl -f http://localhost:9090 || echo "⚠️ Backend non accessible"'
+                sh 'docker exec devops-todo-app-backend curl -s -f http://localhost:5000/metrics || echo "⚠️ /metrics non accessible dans le container backend"'
             }
         }
 
         stage('Test Frontend') {
             steps {
-                sh 'curl -f http://localhost:9090/metrics || echo "⚠️ Endpoint /metrics non accessible"'
-
+                sh 'docker exec devops-todo-app-frontend curl -s -f http://localhost || echo "⚠️ Frontend non accessible dans le container"'
             }
         }
     }
 
     post {
         always {
-            echo '🧹 Nettoyage...'
-            sh 'docker compose -f $DOCKER_COMPOSE_FILE down'
+            echo '✅ Pipeline terminé – conteneurs conservés pour test'
         }
     }
 }
