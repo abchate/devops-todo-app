@@ -37,6 +37,12 @@ pipeline {
                 sh 'docker exec devops-todo-app-frontend curl -s -f http://localhost || echo "⚠️ Frontend non accessible dans le container"'
             }
         }
+
+        stage('Test de performance (k6)') {
+            steps {
+                sh 'docker run --rm -i grafana/k6 run - < k6-test.js || echo "⚠️ k6 test failed"'
+            }
+        }
     }
 
     post {
