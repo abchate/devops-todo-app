@@ -16,7 +16,7 @@ pipeline {
         stage('Build & Run via Docker Compose') {
             steps {
                 sh 'docker compose -f $DOCKER_COMPOSE_FILE down || true'
-                sh 'docker compose -f $DOCKER_COMPOSE_FILE up -d --build'
+                sh 'docker compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans'
             }
         }
 
