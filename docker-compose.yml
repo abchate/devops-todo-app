@@ -1,9 +1,8 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # Backend service
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: devops-todo-app-backend
@@ -15,7 +14,6 @@ services:
     networks:
       - app-network
 
-  # Frontend service
   frontend:
     build:
       context: ./frontend
@@ -30,14 +28,14 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-  services:
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9091:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - app-network
 
