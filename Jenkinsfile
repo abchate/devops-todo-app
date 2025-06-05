@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = 'docker-compose.yml'
+        COMPOSE_FILE = 'docker compose.yml'
     }
 
     stages {
         stage('Build & Run via Docker Compose') {
             steps {
-                sh 'docker-compose down || true' // pour nettoyer les anciens containers
-                sh 'docker-compose up -d --build'
+                sh 'docker compose down || true' // pour nettoyer les anciens containers
+                sh 'docker compose up -d --build'
             }
         }
 
@@ -30,7 +30,7 @@ pipeline {
     post {
         always {
             echo '🧹 Nettoyage...'
-            sh 'docker-compose down'
+            sh 'docker compose down'
         }
     }
 }
