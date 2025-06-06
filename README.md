@@ -1,6 +1,6 @@
 # DevOps Todo App
 
-A full-stack web application boilerplate with React frontend and Node.js/Express backend.
+A full-stack web application with React frontend and Node.js/Express backend, featuring comprehensive DevOps tooling.
 
 ## Project Structure
 
@@ -13,23 +13,37 @@ devops-todo-app/
 │   └── nginx.conf          # Nginx configuration for production
 ├── backend/                # Node.js + Express server
 │   ├── src/                # Server source files
+│   │   ├── controllers/    # API controllers
+│   │   ├── routes/         # API routes
+│   │   └── server.js       # Express server configuration
 │   ├── tests/              # Backend tests
 │   └── Dockerfile          # Backend container definition
-└── docker-compose.yml      # Docker Compose configuration
+├── prometheus/             # Prometheus configuration
+│   └── prometheus.yml      # Prometheus config file
+├── docker-compose.yml      # Docker Compose configuration
+├── Jenkinsfile             # Jenkins CI/CD pipeline
+└── k6-test.js              # K6 performance testing script
 ```
 
 ## Features
 
 - **Frontend**: React application with Vite
 - **Backend**: Node.js and Express REST API
-- **Testing**: Unit tests for both frontend and backend
-- **Docker**: Containerized application with Docker Compose
+- **Testing**: Unit tests with Jest, React Testing Library, and K6 performance testing
+- **DevOps**:
+  - Docker containerization with multi-stage builds
+  - Docker Compose for service orchestration
+  - Jenkins CI/CD pipeline
+  - Prometheus for metrics collection
+  - Grafana for metrics visualization
+  - K6 for performance testing
 
 ## Prerequisites
 
 - Node.js (v16+)
 - npm or yarn
 - Docker and Docker Compose (for containerized deployment)
+- Jenkins (optional, for CI/CD)
 
 ## Running Locally
 
@@ -49,7 +63,7 @@ npm run dev
 npm test
 ```
 
-The backend will be available at http://localhost:9090.
+The backend will be available at http://localhost:5000 (or http://localhost:9090 when running with Docker).
 
 ### Frontend
 
@@ -67,11 +81,11 @@ npm run dev
 npm test
 ```
 
-The frontend will be available at http://localhost:3000.
+The frontend will be available at http://localhost:3000 (or http://localhost:80 when running with Docker).
 
 ## Running with Docker
 
-The application can be easily run using Docker Compose. Here are the detailed steps:
+The application can be easily run using Docker Compose:
 
 ### Build and Run with Docker Compose
 
@@ -102,47 +116,80 @@ docker compose down
 docker compose down -v
 ```
 
-### Individual Container Management
+### Container Services
 
-```bash
-# Restart a specific container
-docker compose restart frontend
-docker compose restart backend
+The Docker Compose setup includes the following services:
 
-# Scale the backend service (creates multiple instances)
-docker compose up -d --scale backend=3
-```
+| Service     | Description                   | Port Mapping   | Internal Port |
+|-------------|-------------------------------|----------------|------------|
+| frontend    | React application with Nginx  | 80:80         | 80           |
+| backend     | Node.js Express API server    | 9090:5000     | 5000         |
+| prometheus  | Metrics collection            | 9091:9090     | 9090         |
+| grafana     | Metrics visualization         | 3000:3000     | 3000         |
+
+### Access Points
 
 Once Docker Compose is running:
-- Frontend will be available at: http://localhost
-- Backend API will be available at: http://localhost:9090/api
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:9090/api
+- **Prometheus**: http://localhost:9091
+- **Grafana**: http://localhost:3000 (admin/supermotdepasse)
+- **Metrics endpoint**: http://localhost:9090/metrics
 
-### Docker Build Process
+## CI/CD with Jenkins
 
-The Docker setup uses:
-- Multi-stage build for the frontend (build with Node.js, serve with Nginx)
-- Node.js Alpine image for the backend
-- Docker Compose networking for service communication
+A Jenkins pipeline is included (`Jenkinsfile`) that automates the following steps:
+
+1. Verifies Docker and Docker Compose installation
+2. Removes any existing containers
+3. Builds and runs all containers with Docker Compose
+4. Tests the backend API (metrics endpoint)
+5. Tests the frontend
+6. Runs K6 performance tests
+
+To use Jenkins:
+1. Add this repository to your Jenkins instance
+2. Create a new Pipeline job pointing to the Jenkinsfile
+3. Run the job
+
+## Monitoring
+
+### Prometheus
+
+Prometheus is configured to scrape metrics from the backend service. The configuration is in `prometheus/prometheus.yml`.
+
+### Grafana
+
+Grafana is pre-configured with default credentials:
+- Username: `admin`
+- Password: `supermotdepasse`
+
+To set up dashboards:
+1. Log in to Grafana at http://localhost:3000
+2. Add Prometheus as a data source (URL: http://prometheus:9090)
+3. Import or create dashboards to visualize your metrics
 
 ## API Endpoints
 
 - `GET /api/hello`: Returns a simple "Hello World" message
 - `GET /health`: Health check endpoint that returns status
+- `GET /metrics`: Prometheus metrics endpoint
 
-## Testing
+## Performance Testing
 
-### Backend Tests
+K6 is used for performance testing. The test script is in `k6-test.js`.
 
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests
+To run performance tests manually:
 
 ```bash
-cd frontend
-npm test
+# Install k6 (if not using Docker)
+# See https://k6.io/docs/getting-started/installation/
+
+# Run test with Docker
+docker run --rm -i grafana/k6 run - < k6-test.js
+
+# Or run locally if k6 is installed
+k6 run k6-test.js
 ```
 
 ## Development
@@ -151,4 +198,5 @@ The project is set up for easy development:
 
 - Frontend uses Vite with hot module replacement
 - Backend uses nodemon for auto-reloading
-- Tests use Jest and React Testing Library
+- Tests use Jest, React Testing Library, and K6
+- Prometheus and Grafana for real-time monitoring during development
