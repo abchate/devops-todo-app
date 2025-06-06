@@ -1,0 +1,29 @@
+groups:
+- name: backend-alerts
+  rules:
+  - alert: HighRequestLatency
+    expr: http_request_duration_seconds{quantile="0.9"} > 1
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Latence élevée des requêtes HTTP"
+      description: "La latence des requêtes HTTP est élevée > 1s (actuelle: {{ $value }})"
+
+  - alert: ApiEndpointDown
+    expr: up{job="backend"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "API endpoint inaccessible"
+      description: "L'endpoint API {{ $labels.instance }} est inaccessible depuis 1 minute."
+      
+  - alert: HighErrorRate
+    expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Taux d'erreur élevé"
+      description: "Plus de 10% des requêtes génèrent des erreurs sur {{ $labels.instance }}"
